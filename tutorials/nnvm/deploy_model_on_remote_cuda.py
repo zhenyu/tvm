@@ -75,6 +75,8 @@ sym, params = nnvm.frontend.from_tensorflow(graph_def, layout=layout)
 print ("Tensorflow protobuf imported as nnvm graph")
 
 #prepare image data
+img_name = 'elephant-299.jpg'
+image_url = os.path.join(repo_base, img_name)
 download(image_url, img_name)
 from PIL import Image
 image = Image.open(img_name).resize((299, 299))
