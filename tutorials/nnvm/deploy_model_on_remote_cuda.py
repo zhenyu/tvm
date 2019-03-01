@@ -24,6 +24,7 @@ from tensorflow.python.framework import tensor_util
 # Tensorflow utility functions
 import tvm.relay.testing.tf as tf_testing
 
+
 # Base location for model related files.
 repo_base = 'https://github.com/dmlc/web-data/raw/master/tensorflow/models/InceptionV1/'
 
@@ -41,6 +42,8 @@ ctx = tvm.gpu(0)
 
 # download model 
 from mxnet.gluon.utils import download
+import os.path
+
 model_name = 'classify_image_graph_def-with_shapes.pb'
 model_url = os.path.join(repo_base, model_name)
 
