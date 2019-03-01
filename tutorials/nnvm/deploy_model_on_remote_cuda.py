@@ -74,6 +74,12 @@ sym, params = nnvm.frontend.from_tensorflow(graph_def, layout=layout)
 
 print ("Tensorflow protobuf imported as nnvm graph")
 
+#prepare image data
+download(image_url, img_name)
+from PIL import Image
+image = Image.open(img_name).resize((299, 299))
+x = np.array(image)
+
 shape_dict = {'DecodeJpeg/contents': x.shape}
 dtype_dict = {'DecodeJpeg/contents': 'uint8'}
 
@@ -104,11 +110,6 @@ rlib = remote.load_module('net.tar')
 ctx = remote.gpu(0)
 module = runtime.create(graph, rlib, ctx)
 
-#prepare image data
-download(image_url, img_name)
-from PIL import Image
-image = Image.open(img_name).resize((299, 299))
-x = np.array(image)
 
 # set input data
 dtype = 'uint8'
