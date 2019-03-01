@@ -124,7 +124,7 @@ module.set_input(**params)
 # run
 module.run()
 # get output
-tvm_output = m.get_output(0, tvm.nd.empty(((1, 1008)), 'float32'))
+tvm_output = module.get_output(0, tvm.nd.empty(((1, 1008)), 'float32'))
 
 ######################################################################
 # Process the output
