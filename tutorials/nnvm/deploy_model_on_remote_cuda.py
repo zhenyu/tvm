@@ -80,6 +80,8 @@ image_url = os.path.join(repo_base, img_name)
 download(image_url, img_name)
 from PIL import Image
 image = Image.open(img_name).resize((299, 299))
+
+import numpy as np
 x = np.array(image)
 
 shape_dict = {'DecodeJpeg/contents': x.shape}
