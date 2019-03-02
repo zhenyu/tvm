@@ -65,7 +65,7 @@ with tf.gfile.FastGFile(os.path.join("./", model_name), 'rb') as f:
 # Results:
 #   sym: nnvm graph for given tensorflow protobuf.
 #   params: params converted from tensorflow params (tensor protobuf).
-sym, params = nnvm.frontend.from_tensorflow(graph_def)
+sym, params = nnvm.frontend.from_tensorflow(graph_def, layout="NCHW")
 
 print ("Tensorflow protobuf imported as nnvm graph")
 
@@ -121,7 +121,7 @@ module.set_input(**params)
 # run
 module.run()
 # get output
-tvm_output = module.get_output(0, tvm.nd.empty(((1, 1008)), 'float32'))
+tvm_output = module.get_output(0)
 
 ######################################################################
 # Process the output
