@@ -65,7 +65,7 @@ with tf.gfile.FastGFile(os.path.join("./", model_name), 'rb') as f:
 # Results:
 #   sym: nnvm graph for given tensorflow protobuf.
 #   params: params converted from tensorflow params (tensor protobuf).
-sym, params = nnvm.frontend.from_tensorflow(graph_def, layout=layout)
+sym, params = nnvm.frontend.from_tensorflow(graph_def)
 
 print ("Tensorflow protobuf imported as nnvm graph")
 
