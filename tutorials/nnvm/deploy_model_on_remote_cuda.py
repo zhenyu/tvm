@@ -34,11 +34,6 @@ num_classes = 1000
 image_shape = (3, 224, 224)
 data_shape = (batch_size,) + image_shape
 
-#optimized target 
-target = 'cuda'
-target_host = 'llvm'
-layout = "NCHW"
-ctx = tvm.gpu(0)
 
 # download model 
 from mxnet.gluon.utils import download
@@ -87,12 +82,14 @@ x = np.array(image)
 shape_dict = {'DecodeJpeg/contents': x.shape}
 dtype_dict = {'DecodeJpeg/contents': 'uint8'}
 
+target = tvm.target.create('cuda')
+
 with nnvm.compiler.build_config(opt_level=3):
-    graph, lib, params = nnvm.compiler.build(sym, shape=shape_dict, target=target, target_host=target_host, dtype=dtype_dict, params=params)
+    graph, lib, params = nnvm.compiler.build(sym, shape=shape_dict, target=target, dtype=dtype_dict, params=params)
 
 # Save the library at local temporary directory.
 tmp = util.tempdir()
-lib_fname = tmp.relpath('net.tar')
+lib_fname = tmp.relpath('tfnet.tar')
 lib.export_library(lib_fname)
 
 ######################################################################
@@ -108,7 +105,7 @@ remote = rpc.connect(host, port)
 
 # upload the library to remote device and load it
 remote.upload(lib_fname)
-rlib = remote.load_module('net.tar')
+rlib = remote.load_module('tfnet.tar')
 
 # create the remote runtime module
 ctx = remote.gpu(0)
