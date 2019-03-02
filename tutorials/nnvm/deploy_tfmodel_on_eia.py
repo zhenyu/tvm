@@ -131,6 +131,12 @@ predictions = tvm_output.asnumpy()
 predictions = np.squeeze(predictions)
 
 #download the table
+# Image label map
+map_proto = 'imagenet_2012_challenge_label_map_proto.pbtxt'
+map_proto_url = os.path.join(repo_base, map_proto)
+# Human readable text for labels
+lable_map = 'imagenet_synset_to_human_label_map.txt'
+lable_map_url = os.path.join(repo_base, lable_map)
 download(map_proto_url, map_proto)
 download(lable_map_url, lable_map)
 
