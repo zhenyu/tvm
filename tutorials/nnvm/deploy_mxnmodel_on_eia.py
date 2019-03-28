@@ -83,7 +83,7 @@ from PIL import Image
 import numpy as np
 
 # one line to get the model
-block = get_model('resnet18_v1', pretrained=True)
+block = get_model('resnet50_v1', pretrained=True)
 
 ######################################################################
 # In order to test our model, here we download an image of cat and
