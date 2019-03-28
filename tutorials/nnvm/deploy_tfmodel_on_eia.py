@@ -86,11 +86,17 @@ target = tvm.target.create('cuda')
 
 with nnvm.compiler.build_config(opt_level=3):
     graph, lib, params = nnvm.compiler.build(sym, shape=shape_dict, target=target, dtype=dtype_dict, params=params)
+    param_bytes = nnvm.compiler.save_param_dict(params) 
 
 # Save the library at local temporary directory.
-tmp = util.tempdir()
-lib_fname = tmp.relpath('tfnet.tar')
+
+lib_fname = '/home/ubuntu/tfnet.tar'
 lib.export_library(lib_fname)
+
+param_file_name = '/home/ubuntu/tf.params'
+param_file = open(param_file_name, 'wb')
+param_file.write(param_bytes)
+param_file.close()
 
 ######################################################################
 # Deploy the Model Remotely by RPC
@@ -111,12 +117,17 @@ rlib = remote.load_module('tfnet.tar')
 ctx = remote.gpu(0)
 module = runtime.create(graph, rlib, ctx)
 
+# set parameter (upload params to the remote device. This may take a while)
+param_file = open(param_file_name, 'rb')
+param_bytes = param_file.read()
+params = nnvm.compiler.load_param_dict(param_bytes)
+param_file.close()
+
+module.set_input(**params)
 
 # set input data
 dtype = 'uint8'
 module.set_input('DecodeJpeg/contents', tvm.nd.array(x.astype(dtype)))
-# set parameter (upload params to the remote device. This may take a while)
-module.set_input(**params)
 
 # run
 module.run()
