@@ -98,6 +98,11 @@ param_file = open(param_file_name, 'wb')
 param_file.write(param_bytes)
 param_file.close()
 
+model_file_name = '/home/ubuntu/tf.json'
+model_file = open(model_file_name, 'w')
+model_file.write(graph.json())
+model_file.close()
+
 ######################################################################
 # Deploy the Model Remotely by RPC
 # --------------------------------
