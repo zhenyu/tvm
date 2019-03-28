@@ -39,8 +39,8 @@ data_shape = (batch_size,) + image_shape
 from mxnet.gluon.utils import download
 import os.path
 
-model_name = 'classify_image_graph_def-with_shapes.pb'
-model_url = os.path.join(repo_base, model_name)
+model_name = 'resnet-20180601_resnet_v2_imagenet-shapes.pb'
+model_url = "https://github.com/dmlc/web-data/blob/master/tensorflow/models/ResnetV2/resnet-20180601_resnet_v2_imagenet-shapes.pb"
 
 download(model_url, model_name)
 
