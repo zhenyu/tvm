@@ -28,7 +28,7 @@ from tvm.contrib import util, graph_runtime as runtime
 #   All instructions in both this section and next section should be
 #   executed on the target device, e.g. Raspberry Pi. And we assume it
 #   has Linux running.
-# 
+#
 # Since we do compilation on local machine, the remote device is only used
 # for running the generated code. We only need to build tvm runtime on
 # the remote device.
@@ -41,7 +41,7 @@ from tvm.contrib import util, graph_runtime as runtime
 #
 # After building runtime successfully, we need to set environment varibles
 # in :code:`~/.bashrc` file. We can edit :code:`~/.bashrc`
-# using :code:`vi ~/.bashrc` and add the line below (Assuming your TVM 
+# using :code:`vi ~/.bashrc` and add the line below (Assuming your TVM
 # directory is in :code:`~/tvm`):
 #
 # .. code-block:: bash
@@ -72,7 +72,7 @@ from tvm.contrib import util, graph_runtime as runtime
 # Prepare the Pre-trained Model
 # -----------------------------
 # Back to the host machine, which should have a full TVM installed (with LLVM).
-# 
+#
 # We will use pre-trained model from
 # `MXNet Gluon model zoo <https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html>`_.
 # You can found more details about this part at tutorial :ref:`tutorial-from-mxnet`.
@@ -152,20 +152,25 @@ if local_demo:
     target = tvm.target.create('llvm')
 else:
     target = tvm.target.create('cuda')
-    
+
 
 with nnvm.compiler.build_config(opt_level=3):
     graph, lib, params = nnvm.compiler.build(
         net, target, shape={"data": data_shape}, params=params)
+    param_bytes = nnvm.compiler.save_param_dict(params)  
 
 # After `nnvm.compiler.build`, you will get three return values: graph,
 # library and the new parameter, since we do some optimization that will
 # change the parameters but keep the result of model as the same.
 
 # Save the library at local temporary directory.
-tmp = util.tempdir()
-lib_fname = tmp.relpath('mxnet.tar')
+
+lib_fname = '/home/ubuntu/mxnet.tar'
 lib.export_library(lib_fname)
+param_file_name = '/home/ubuntu/mxnet.params'
+param_file = open(param_file_name, 'wb')
+param_file.write(param_bytes)
+param_file.close()
 
 ######################################################################
 # Deploy the Model Remotely by RPC
@@ -190,6 +195,11 @@ rlib = remote.load_module('mxnet.tar')
 ctx = remote.gpu(0)
 module = runtime.create(graph, rlib, ctx)
 # set parameter (upload params to the remote device. This may take a while)
+param_file = open(param_file_name, 'rb')
+param_bytes = param_file.read()
+params = nnvm.compiler.load_param_dict(param_bytes)
+param_file.close()
+
 module.set_input(**params)
 # set input data
 module.set_input('data', tvm.nd.array(x.astype('float32')))
