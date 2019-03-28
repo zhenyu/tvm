@@ -46,15 +46,10 @@ download(model_url, model_name)
 
 # Creates tensorflow graph definition from protobuf file.
 
-with tf.gfile.FastGFile(os.path.join("./", model_name), 'rb') as f:
-    graph_def = tf.GraphDef()
-    graph_def.ParseFromString(f.read())
-    graph = tf.import_graph_def(graph_def, name='')
-    # Call the utility to import the graph definition into default graph.
-    graph_def = tf_testing.ProcessGraphDefParam(graph_def)
-    # Add shapes to the graph.
-    with tf.Session() as sess:
-        graph_def = tf_testing.AddShapesToGraphDef(sess, 'softmax')
+graph_def = tf_testing.get_workload("ResnetV2/resnet-20180601_resnet_v2_imagenet-shapes.pb")
+
+# Call the utility to import the graph definition into default graph.
+graph_def = tf_testing.ProcessGraphDefParam(graph_def)
 
 
 ######################################################################
