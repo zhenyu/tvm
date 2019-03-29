@@ -7,7 +7,7 @@ from mxnet.gluon.utils import download
 import os.path
 # Tensorflow utility functions
 import tvm.relay.testing.tf as tf_testing
-
+from tvm.contrib import util, graph_runtime as runtime
 
 # Base location for model related files.
 repo_base = 'https://github.com/dmlc/web-data/raw/master/tensorflow/models/InceptionV1/'
@@ -32,7 +32,7 @@ shape_dict = {'DecodeJpeg/contents': x.shape}
 dtype_dict = {'DecodeJpeg/contents': 'uint8'}
 
 # The following is my environment, change this to the IP address of your target device
-host = '0.0.0.0'
+host = '172.31.5.8'
 port = 9090
 remote = rpc.connect(host, port)
 
@@ -42,13 +42,14 @@ remote.upload(lib_fname)
 rlib = remote.load_module('tfnet.tar')
 
 #load json model to graph
-loaded_json = open('/home/ubuntu/tf.json').read()
+graph = open('/home/ubuntu/tf.json').read()
 
 # create the remote runtime module
 ctx = remote.gpu(0)
 module = runtime.create(graph, rlib, ctx)
 
 # set parameter (upload params to the remote device. This may take a while)
+param_file_name = '/home/ubuntu/tf.params'
 param_file = open(param_file_name, 'rb')
 param_bytes = param_file.read()
 params = nnvm.compiler.load_param_dict(param_bytes)
