@@ -5,6 +5,9 @@ from tvm import rpc
 # download model 
 from mxnet.gluon.utils import download
 import os.path
+# Tensorflow utility functions
+import tvm.relay.testing.tf as tf_testing
+
 
 # Base location for model related files.
 repo_base = 'https://github.com/dmlc/web-data/raw/master/tensorflow/models/InceptionV1/'
@@ -68,3 +71,24 @@ tvm_output = module.get_output(0)
 # Process the model output to human readable text for InceptionV1.
 predictions = tvm_output.asnumpy()
 predictions = np.squeeze(predictions)
+
+
+#download the table
+# Image label map
+map_proto = 'imagenet_2012_challenge_label_map_proto.pbtxt'
+map_proto_url = os.path.join(repo_base, map_proto)
+# Human readable text for labels
+lable_map = 'imagenet_synset_to_human_label_map.txt'
+lable_map_url = os.path.join(repo_base, lable_map)
+download(map_proto_url, map_proto)
+download(lable_map_url, lable_map)
+
+# Creates node ID --> English string lookup.
+node_lookup = tf_testing.NodeLookup(label_lookup_path=os.path.join("./", map_proto),
+                                         uid_lookup_path=os.path.join("./", lable_map))
+# Print top 5 predictions from TVM output.
+top_k = predictions.argsort()[-5:][::-1]
+for node_id in top_k:
+    human_string = node_lookup.id_to_string(node_id)
+    score = predictions[node_id]
+    print('%s (score = %.5f)' % (human_string, score))
